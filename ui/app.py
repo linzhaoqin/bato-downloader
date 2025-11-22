@@ -83,7 +83,7 @@ class MangaDownloader(tk.Tk):
         self.geometry("1100x850")
         self.minsize(1000, 800)
 
-        sv_ttk.set_theme("dark")
+        sv_ttk.set_theme("light")
 
         self.search_services: dict[str, Any] = {
             "Bato": BatoService(),
