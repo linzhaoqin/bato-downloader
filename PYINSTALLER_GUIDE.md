@@ -56,84 +56,26 @@ PyInstaller 默认会把显式 import 的模块收集到可执行文件，但本
 
 ---
 
-## 3. 生成初始 `.spec` 文件
+## 3. 构建步骤 (Build Steps)
 
-首次运行建议让 PyInstaller 自动生成基础配置，再手动调整。以下命令以图形化应用（无控制台窗口）为例：
+项目已包含配置好的 `UniversalMangaDownloader.spec` 文件，你只需运行以下命令即可打包。
+
+### 3.1 macOS 打包命令
+在 macOS 终端运行：
 
 ```bash
-pyinstaller \
-  --name "UniversalMangaDownloader" \
-  --windowed \
-  --noconfirm \
-  --noconsole \
-  manga_downloader.py
+pyinstaller UniversalMangaDownloader.spec --clean
 ```
 
-命令完成后，仓库根目录会新增：
+### 3.2 Windows 打包命令
+在 Windows PowerShell 运行：
 
-- `UniversalMangaDownloader.spec`：PyInstaller 配置文件
-- `build/UniversalMangaDownloader/`：中间构建产物
-- `dist/UniversalMangaDownloader/`：最终输出的可执行目录
-
-接下来编辑生成的 `.spec` 文件，确保插件等资源被正确打包。
-
----
-
-## 4. 自定义 `.spec` 文件
-
-下面给出一个示例配置片段，重点在 `datas` 与 `hiddenimports`：
-
-```python
-# UniversalMangaDownloader.spec
-from __future__ import annotations
-
-import sys
-
-block_cipher = None
-
-a = Analysis(
-    ["manga_downloader.py"],
-    pathex=["."],
-    binaries=[],
-    datas=[
-        ("plugins/*.py", "plugins"),
-    ],
-    hiddenimports=[
-        "sv_ttk",
-        "cloudscraper",
-        "requests_toolbelt",
-    ],
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=[],
-    excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    noarchive=False,
-)
-
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    name="UniversalMangaDownloader",
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,  # macOS 若需拖放文件，可改成 True
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    icon="assets/app.icns" if sys.platform == "darwin" else "assets/app.ico",
-)
+```powershell
+pyinstaller UniversalMangaDownloader.spec --clean
 ```
+
+> **提示**: 构建完成后，请查看 `dist/` 目录获取最终应用。
+
 
 调整要点：
 
@@ -196,6 +138,26 @@ pyinstaller UniversalMangaDownloader.spec --clean
 | Windows 启动时弹出控制台 | 未使用 `--windowed` / `.spec` 中 `console=True` | 把命令行参数改为 `--windowed` 或在 `.spec` 中设 `console=False` |
 | macOS 提示「已损坏或无法打开」 | 未签名或 Gatekeeper 拦截 | 使用 `codesign` 签名，或让用户通过右键→打开绕过 |
 | 打包体积过大 | 带入了调试符号或冗余库 | 评估 `excludes`、关闭 `--debug`，必要时使用 UPX 压缩（需额外安装） |
+
+---
+
+## 8. 常见问答 (FAQ)
+
+### Q1: `dist/` 文件夹里为什么有两个文件？
+- **`UniversalMangaDownloader` (黑色图标)**: 这是 Unix 可执行文件，是构建过程的中间产物。虽然可以运行，但没有图标，也不是标准的 macOS 应用。**可以忽略或删除**。
+- **`UniversalMangaDownloader.app` (应用图标)**: **这是你需要的最终产物**。它是一个完整的 macOS 应用程序包，包含图标和资源。
+
+### Q2: 如何更换应用图标？
+可以更换！请准备以下规格的图片并放入 `assets/` 目录：
+
+- **macOS**: 需要 `.icns` 格式。建议使用 1024x1024 像素的 PNG 图片转换生成。
+- **Windows**: 需要 `.ico` 格式。同样建议使用高清 PNG 转换。
+
+**操作步骤**:
+1. 准备一张高清 PNG (1024x1024)。
+2. 转换为 `assets/app.icns` (macOS) 和 `assets/app.ico` (Windows)。
+3. 取消 `.spec` 文件中 `icon=` 行的注释。
+4. 重新运行打包命令。
 
 ---
 
