@@ -18,6 +18,7 @@ class UIConfig:
     # UI timing (milliseconds)
     scroll_delay_ms: int = 50
     queue_scroll_delay_ms: int = 50
+    progress_update_interval_ms: int = 125
 
 
 @dataclass(frozen=True)
@@ -32,6 +33,7 @@ class DownloadConfig:
     default_image_workers: int = 4
     max_image_workers: int = 32
     min_image_workers: int = 1
+    max_total_image_workers: int = 48
 
     # Network timeouts (seconds)
     request_timeout: int = 30
@@ -42,6 +44,9 @@ class DownloadConfig:
     max_retries: int = 3
     retry_delay: float = 1.0
 
+    # Networking helpers
+    scraper_pool_size: int = 8
+
 
 @dataclass(frozen=True)
 class ServiceConfig:
@@ -51,6 +56,16 @@ class ServiceConfig:
     bato_base_url: str = "https://bato.to"
     bato_search_path: str = "/search"
     bato_max_search_pages: int = 3
+
+    # MangaDex service
+    mangadex_api_base: str = "https://api.mangadex.org"
+    mangadex_site_base: str = "https://mangadex.org"
+    mangadex_search_limit: int = 20
+    mangadex_max_chapter_pages: int = 5
+    mangadex_languages: tuple[str, ...] = ("en",)
+
+    # Rate limiting (seconds between requests)
+    rate_limit_delay: float = 0.5  # 500ms between requests to same service
 
 
 @dataclass(frozen=True)
