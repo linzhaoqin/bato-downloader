@@ -1,0 +1,85 @@
+{
+    "app": {
+        "title": "通用漫画下载器"
+    },
+    "tabs": {
+        "browser": "浏览",
+        "downloads": "下载",
+        "settings": "设置"
+    },
+    "browser": {
+        "search_frame": "搜索漫画",
+        "source": "来源:",
+        "search_btn": "搜索",
+        "series_details": "漫画详情",
+        "series_url": "漫画链接:",
+        "load_series": "加载详情",
+        "default_title": "标题将显示在这里",
+        "summary": "简介与信息:",
+        "chapters": "章节列表:",
+        "range": "范围:",
+        "to": "至",
+        "highlight_range": "高亮范围",
+        "queue_selected": "下载选中",
+        "queue_range": "下载范围",
+        "queue_all": "下载全部",
+        "quick_queue": "快速下载",
+        "chapter_url": "章节链接:",
+        "queue_download": "加入队列"
+    },
+    "downloads": {
+        "queue_frame": "下载队列",
+        "queue_overview": "队列概览",
+        "overall_queue": "总进度:",
+        "clear_finished": "清除已完成",
+        "cancel_pending": "取消等待中",
+        "pause": "暂停下载",
+        "resume": "恢复下载"
+    },
+    "settings": {
+        "download_settings": "下载设置",
+        "save_to": "保存至:",
+        "browse": "浏览…",
+        "chapter_workers": "章节并发数:",
+        "image_workers": "图片并发数:",
+        "plugins": "插件管理",
+        "plugins_desc": "启用或禁用插件（立即生效）。",
+        "parser_plugins": "解析器插件",
+        "language": "语言:",
+        "restart_note": "注意：部分更改可能需要重启生效。"
+    },
+    "status": {
+        "ready": "状态: 就绪",
+        "switched_provider": "状态: 已切换至 {provider}。",
+        "enter_query": "状态: 请输入搜索关键词。",
+        "enable_plugin_search": "状态: 请先启用一个解析器插件。",
+        "provider_disabled": "状态: 所选来源已被禁用。",
+        "searching": "状态: 正在 {provider} 中搜索 \"{query}\"...",
+        "search_failed_network": "状态: {provider} 搜索失败 - 网络错误: {error}",
+        "search_error_format": "状态: {provider} 搜索错误 - 响应格式无效",
+        "search_error_generic": "状态: {provider} 搜索错误 - {error}",
+        "found_results": "状态: 在 {provider} 找到 {count} 个结果 (关键词: \"{query}\")。",
+        "no_results": "状态: 在 {provider} 未找到 \"{query}\" 的结果。",
+        "select_series": "状态: 请选择一部漫画或粘贴链接。",
+        "enable_plugin_load": "状态: 请启用对应的解析器插件以加载此漫画。",
+        "fetching_series": "状态: 正在获取 {provider} 漫画详情...",
+        "series_fetch_failed": "状态: {provider} 获取失败 - 网络错误: {error}",
+        "series_parse_error": "状态: {provider} 解析错误 - 响应格式无效",
+        "series_error_generic": "状态: {provider} 错误 - {error}",
+        "loaded_chapters": "状态: 已加载 {count} 个 {provider} 章节。",
+        "selected_chapter": "状态: 已选中 {title}",
+        "selected_chapters_count": "状态: 已选中 {count} 个章节 ({start}–{end})",
+        "selected_all": "状态: 已选中全部 {count} 个章节。",
+        "select_to_download": "状态: 请选择一个或多个要下载的章节。",
+        "missing_urls": "状态: 选中的章节缺少下载链接。",
+        "no_chapters_in_range": "状态: 指定范围内没有可下载的章节。",
+        "plugin_toggled": "状态: 插件 {name} 已{status}。",
+        "queue_idle": "队列: 空闲",
+        "queue_active": "队列: {active} 进行中, {pending} 等待中",
+        "queued_batch": "状态: 已将 {count} 个章节加入下载队列。",
+        "download_started": "状态: 开始下载 {title}"
+    },
+    "dialogs": {
+        "select_folder": "选择下载文件夹"
+    }
+}

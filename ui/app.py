@@ -28,6 +28,8 @@ from services import BatoService, MangaDexService
 from ui.logging_utils import configure_logging
 from utils.file_utils import ensure_directory, get_default_download_root
 from utils.http_client import ScraperPool
+from utils.i18n import I18N
+from utils.settings import SETTINGS
 
 STATUS_COLORS: dict[QueueState, str] = {
     QueueState.SUCCESS: "#1a7f37",
@@ -79,7 +81,7 @@ class MangaDownloader(tk.Tk):
 
     def __init__(self) -> None:
         super().__init__()
-        self.title("Universal Manga Downloader")
+        self.title(I18N.t("app.title"))
         self.geometry("1100x850")
         self.minsize(1000, 800)
 
@@ -114,8 +116,11 @@ class MangaDownloader(tk.Tk):
         self.image_workers_var = tk.IntVar(value=CONFIG.download.default_image_workers)
         self.range_start_var = tk.StringVar()
         self.range_end_var = tk.StringVar()
-        self.queue_status_var = tk.StringVar(value="Queue: idle")
-        self.download_dir_var = tk.StringVar(value=get_default_download_root())
+        self.queue_status_var = tk.StringVar(value=I18N.t("status.queue_idle"))
+        
+        # Load download dir from settings
+        saved_dir = SETTINGS.get().download_dir
+        self.download_dir_var = tk.StringVar(value=saved_dir if saved_dir else get_default_download_root())
         self.download_dir_path = self.download_dir_var.get()
         self.download_dir_var.trace_add("write", self._on_download_dir_var_write)
         self._chapter_workers_value = self._clamp_value(
@@ -166,18 +171,19 @@ class MangaDownloader(tk.Tk):
         self.queue_tab = ttk.Frame(self.notebook)
         self.settings_tab = ttk.Frame(self.notebook)
 
-        self.notebook.add(self.search_tab, text="Browser")
-        self.notebook.add(self.queue_tab, text="Downloads")
-        self.notebook.add(self.settings_tab, text="Settings")
+        self.notebook.add(self.search_tab, text=I18N.t("tabs.browser"))
+        self.notebook.add(self.queue_tab, text=I18N.t("tabs.downloads"))
+        self.notebook.add(self.settings_tab, text=I18N.t("tabs.settings"))
 
         # --- Search Tab ---
-        search_frame = ttk.LabelFrame(self.search_tab, text="Search Manga")
-        search_frame.pack(fill="x", expand=False, padx=10, pady=(12, 10))
+        self.lbl_search_frame = ttk.LabelFrame(self.search_tab, text=I18N.t("browser.search_frame"))
+        self.lbl_search_frame.pack(fill="x", expand=False, padx=10, pady=(12, 10))
 
-        search_entry_frame = ttk.Frame(search_frame)
+        search_entry_frame = ttk.Frame(self.lbl_search_frame)
         search_entry_frame.pack(fill="x", padx=10, pady=10)
 
-        ttk.Label(search_entry_frame, text="Source:").pack(side="left", padx=(0, 8))
+        self.lbl_source = ttk.Label(search_entry_frame, text=I18N.t("browser.source"))
+        self.lbl_source.pack(side="left", padx=(0, 8))
         self.provider_combo = ttk.Combobox(
             search_entry_frame,
             state="readonly",
@@ -192,10 +198,10 @@ class MangaDownloader(tk.Tk):
         self.search_entry.pack(side="left", fill="x", expand=True)
         self.search_entry.bind("<Return>", lambda _event: self.start_search_thread())
 
-        self.search_button = ttk.Button(search_entry_frame, text="Search", command=self.start_search_thread)
+        self.search_button = ttk.Button(search_entry_frame, text=I18N.t("browser.search_btn"), command=self.start_search_thread)
         self.search_button.pack(side="left", padx=(10, 0))
 
-        results_frame = ttk.Frame(search_frame)
+        results_frame = ttk.Frame(self.lbl_search_frame)
         results_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
 
         self.search_results_listbox = tk.Listbox(results_frame, height=6, exportselection=False)
@@ -210,31 +216,33 @@ class MangaDownloader(tk.Tk):
         self.search_results_listbox.bind("<Return>", self.on_search_double_click)
 
         # --- Series Details ---
-        series_frame = ttk.LabelFrame(self.search_tab, text="Series Details")
-        series_frame.pack(fill="both", expand=True, padx=10, pady=(0, 12))
+        self.lbl_series_frame = ttk.LabelFrame(self.search_tab, text=I18N.t("browser.series_details"))
+        self.lbl_series_frame.pack(fill="both", expand=True, padx=10, pady=(0, 12))
 
-        controls_frame = ttk.Frame(series_frame)
+        controls_frame = ttk.Frame(self.lbl_series_frame)
         controls_frame.pack(fill="x", padx=10, pady=10)
 
-        ttk.Label(controls_frame, text="Series URL:").pack(side="left")
+        self.lbl_series_url = ttk.Label(controls_frame, text=I18N.t("browser.series_url"))
+        self.lbl_series_url.pack(side="left")
         self.series_url_var = tk.StringVar()
         self.series_url_entry = ttk.Entry(controls_frame, textvariable=self.series_url_var)
         self.series_url_entry.pack(side="left", fill="x", expand=True, padx=(8, 8))
-        self.load_series_button = ttk.Button(controls_frame, text="Load Series", command=self.start_series_info_thread)
+        self.load_series_button = ttk.Button(controls_frame, text=I18N.t("browser.load_series"), command=self.start_series_info_thread)
         self.load_series_button.pack(side="left")
 
-        self.series_title_var = tk.StringVar(value="Series title will appear here")
-        ttk.Label(series_frame, textvariable=self.series_title_var, font=("TkDefaultFont", 14, "bold")).pack(
+        self.series_title_var = tk.StringVar(value=I18N.t("browser.default_title"))
+        ttk.Label(self.lbl_series_frame, textvariable=self.series_title_var, font=("TkDefaultFont", 14, "bold")).pack(
             anchor="w", padx=10, pady=(0, 4)
         )
 
-        info_and_chapters_frame = ttk.Frame(series_frame)
+        info_and_chapters_frame = ttk.Frame(self.lbl_series_frame)
         info_and_chapters_frame.pack(fill="both", expand=True, padx=10, pady=(10, 10))
 
         info_frame = ttk.Frame(info_and_chapters_frame)
         info_frame.pack(side="left", fill="both", expand=True)
 
-        ttk.Label(info_frame, text="Summary & Info:").pack(anchor="w")
+        self.lbl_summary = ttk.Label(info_frame, text=I18N.t("browser.summary"))
+        self.lbl_summary.pack(anchor="w")
 
         info_text_container = ttk.Frame(info_frame)
         info_text_container.pack(fill="both", expand=True, pady=(4, 0))
@@ -249,7 +257,8 @@ class MangaDownloader(tk.Tk):
         chapters_frame = ttk.Frame(info_and_chapters_frame)
         chapters_frame.pack(side="left", fill="both", expand=False, padx=(12, 0))
 
-        ttk.Label(chapters_frame, text="Chapters:").pack(anchor="w")
+        self.lbl_chapters = ttk.Label(chapters_frame, text=I18N.t("browser.chapters"))
+        self.lbl_chapters.pack(anchor="w")
 
         chapters_list_container = ttk.Frame(chapters_frame)
         chapters_list_container.pack(fill="both", expand=True, pady=(4, 0))
@@ -269,44 +278,47 @@ class MangaDownloader(tk.Tk):
         range_frame = ttk.Frame(chapters_frame)
         range_frame.pack(fill="x", pady=(6, 0))
 
-        ttk.Label(range_frame, text="Range:").pack(side="left")
+        self.lbl_range = ttk.Label(range_frame, text=I18N.t("browser.range"))
+        self.lbl_range.pack(side="left")
         range_start_entry = ttk.Entry(range_frame, width=6, textvariable=self.range_start_var)
         range_start_entry.pack(side="left", padx=(6, 3))
         range_start_entry.bind("<Return>", lambda _event: self._highlight_range_selection())
-        ttk.Label(range_frame, text="to").pack(side="left")
+        self.lbl_to = ttk.Label(range_frame, text=I18N.t("browser.to"))
+        self.lbl_to.pack(side="left")
         range_end_entry = ttk.Entry(range_frame, width=6, textvariable=self.range_end_var)
         range_end_entry.pack(side="left", padx=(3, 6))
         range_end_entry.bind("<Return>", lambda _event: self._highlight_range_selection())
 
-        ttk.Button(chapters_frame, text="Highlight Range", command=self._highlight_range_selection).pack(
-            fill="x", pady=(8, 0)
-        )
-        ttk.Button(chapters_frame, text="Queue Selected", command=self.download_selected_chapter).pack(
-            fill="x", pady=(4, 2)
-        )
-        ttk.Button(chapters_frame, text="Queue Range", command=self.download_range).pack(fill="x", pady=(0, 2))
-        ttk.Button(chapters_frame, text="Queue All", command=self.download_all_chapters).pack(fill="x")
+        self.btn_highlight = ttk.Button(chapters_frame, text=I18N.t("browser.highlight_range"), command=self._highlight_range_selection)
+        self.btn_highlight.pack(fill="x", pady=(8, 0))
+        self.btn_queue_selected = ttk.Button(chapters_frame, text=I18N.t("browser.queue_selected"), command=self.download_selected_chapter)
+        self.btn_queue_selected.pack(fill="x", pady=(4, 2))
+        self.btn_queue_range = ttk.Button(chapters_frame, text=I18N.t("browser.queue_range"), command=self.download_range)
+        self.btn_queue_range.pack(fill="x", pady=(0, 2))
+        self.btn_queue_all = ttk.Button(chapters_frame, text=I18N.t("browser.queue_all"), command=self.download_all_chapters)
+        self.btn_queue_all.pack(fill="x")
 
         # --- Manual Queue Section ---
-        manual_frame = ttk.LabelFrame(self.search_tab, text="Quick Queue")
-        manual_frame.pack(fill="x", expand=False, padx=10, pady=(0, 12))
+        self.lbl_manual_frame = ttk.LabelFrame(self.search_tab, text=I18N.t("browser.quick_queue"))
+        self.lbl_manual_frame.pack(fill="x", expand=False, padx=10, pady=(0, 12))
 
-        download_entry_frame = ttk.Frame(manual_frame)
+        download_entry_frame = ttk.Frame(self.lbl_manual_frame)
         download_entry_frame.pack(fill="x", padx=10, pady=6)
 
-        ttk.Label(download_entry_frame, text="Chapter URL:").pack(side="left")
+        self.lbl_chapter_url = ttk.Label(download_entry_frame, text=I18N.t("browser.chapter_url"))
+        self.lbl_chapter_url.pack(side="left")
         self.url_var = tk.StringVar()
         self.url_entry = ttk.Entry(download_entry_frame, textvariable=self.url_var)
         self.url_entry.pack(side="left", fill="x", expand=True, padx=(6, 6))
         self.url_entry.bind("<Return>", lambda _event: self.start_download_thread())
-        self.download_button = ttk.Button(download_entry_frame, text="Queue Download", command=self.start_download_thread)
+        self.download_button = ttk.Button(download_entry_frame, text=I18N.t("browser.queue_download"), command=self.start_download_thread)
         self.download_button.pack(side="left")
 
         # --- Queue Tab ---
-        queue_wrapper = ttk.LabelFrame(self.queue_tab, text="Download Queue")
-        queue_wrapper.pack(fill="both", expand=True, padx=10, pady=(12, 10))
+        self.lbl_queue_frame = ttk.LabelFrame(self.queue_tab, text=I18N.t("downloads.queue_frame"))
+        self.lbl_queue_frame.pack(fill="both", expand=True, padx=10, pady=(12, 10))
 
-        queue_canvas_frame = ttk.Frame(queue_wrapper)
+        queue_canvas_frame = ttk.Frame(self.lbl_queue_frame)
         queue_canvas_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         self.queue_canvas = tk.Canvas(queue_canvas_frame, borderwidth=0, highlightthickness=0)
@@ -331,51 +343,54 @@ class MangaDownloader(tk.Tk):
 
         self.queue_items_container.bind("<Configure>", _sync_queue_scrollregion)
 
-        queue_footer = ttk.LabelFrame(self.queue_tab, text="Queue Overview")
-        queue_footer.pack(fill="x", expand=False, padx=10, pady=(0, 12))
+        self.lbl_queue_overview = ttk.LabelFrame(self.queue_tab, text=I18N.t("downloads.queue_overview"))
+        self.lbl_queue_overview.pack(fill="x", expand=False, padx=10, pady=(0, 12))
 
-        ttk.Label(queue_footer, text="Overall queue:").pack(anchor="w", padx=10, pady=(6, 0))
-        self.queue_progress = ttk.Progressbar(queue_footer, orient="horizontal", mode="determinate")
+        self.lbl_overall_queue = ttk.Label(self.lbl_queue_overview, text=I18N.t("downloads.overall_queue"))
+        self.lbl_overall_queue.pack(anchor="w", padx=10, pady=(6, 0))
+        self.queue_progress = ttk.Progressbar(self.lbl_queue_overview, orient="horizontal", mode="determinate")
         self.queue_progress.pack(fill="x", padx=10, pady=(0, 6))
 
-        queue_controls_frame = ttk.Frame(queue_footer)
+        queue_controls_frame = ttk.Frame(self.lbl_queue_overview)
         queue_controls_frame.pack(fill="x", padx=10, pady=(0, 8))
 
         self.queue_label = ttk.Label(queue_controls_frame, textvariable=self.queue_status_var)
         self.queue_label.pack(side="left", anchor="w")
 
-        ttk.Button(queue_controls_frame, text="Clear Finished", command=self._clear_finished_queue_items).pack(
-            side="right"
-        )
+        self.btn_clear_finished = ttk.Button(queue_controls_frame, text=I18N.t("downloads.clear_finished"), command=self._clear_finished_queue_items)
+        self.btn_clear_finished.pack(side="right")
         self.cancel_pending_button = ttk.Button(
             queue_controls_frame,
-            text="Cancel Pending",
+            text=I18N.t("downloads.cancel_pending"),
             command=self._cancel_pending_downloads,
         )
         self.cancel_pending_button.pack(side="right", padx=(0, 8))
         self.pause_button = ttk.Button(
             queue_controls_frame,
-            text="Pause Downloads",
+            text=I18N.t("downloads.pause"),
             command=self._toggle_download_pause,
         )
         self.pause_button.pack(side="right", padx=(0, 8))
 
         # --- Settings Tab ---
-        settings_frame = ttk.LabelFrame(self.settings_tab, text="Download Settings")
-        settings_frame.pack(fill="x", expand=False, padx=10, pady=(12, 10))
+        self.lbl_settings_frame = ttk.LabelFrame(self.settings_tab, text=I18N.t("settings.download_settings"))
+        self.lbl_settings_frame.pack(fill="x", expand=False, padx=10, pady=(12, 10))
 
-        directory_frame = ttk.Frame(settings_frame)
+        directory_frame = ttk.Frame(self.lbl_settings_frame)
         directory_frame.pack(fill="x", padx=10, pady=10)
 
-        ttk.Label(directory_frame, text="Save to:").pack(side="left")
+        self.lbl_save_to = ttk.Label(directory_frame, text=I18N.t("settings.save_to"))
+        self.lbl_save_to.pack(side="left")
         self.download_dir_entry = ttk.Entry(directory_frame, textvariable=self.download_dir_var)
         self.download_dir_entry.pack(side="left", fill="x", expand=True, padx=(6, 6))
-        ttk.Button(directory_frame, text="Browse…", command=self._browse_download_dir).pack(side="left")
+        self.btn_browse = ttk.Button(directory_frame, text=I18N.t("settings.browse"), command=self._browse_download_dir)
+        self.btn_browse.pack(side="left")
 
-        concurrency_frame = ttk.Frame(settings_frame)
+        concurrency_frame = ttk.Frame(self.lbl_settings_frame)
         concurrency_frame.pack(fill="x", padx=10, pady=10)
 
-        ttk.Label(concurrency_frame, text="Chapter workers:").pack(side="left")
+        self.lbl_chapter_workers = ttk.Label(concurrency_frame, text=I18N.t("settings.chapter_workers"))
+        self.lbl_chapter_workers.pack(side="left")
         self.chapter_workers_spinbox = ttk.Spinbox(
             concurrency_frame,
             from_=1,
@@ -387,7 +402,8 @@ class MangaDownloader(tk.Tk):
         self.chapter_workers_spinbox.pack(side="left", padx=(6, 18))
         self.chapter_workers_spinbox.bind("<FocusOut>", self._on_chapter_workers_change)
 
-        ttk.Label(concurrency_frame, text="Image workers:").pack(side="left")
+        self.lbl_image_workers = ttk.Label(concurrency_frame, text=I18N.t("settings.image_workers"))
+        self.lbl_image_workers.pack(side="left")
         self.image_workers_spinbox = ttk.Spinbox(
             concurrency_frame,
             from_=1,
@@ -397,13 +413,39 @@ class MangaDownloader(tk.Tk):
             command=self._on_image_workers_change,
         )
         self.image_workers_spinbox.pack(side="left", padx=(6, 0))
+        self.image_workers_spinbox.pack(side="left", padx=(6, 0))
         self.image_workers_spinbox.bind("<FocusOut>", self._on_image_workers_change)
+
+        language_frame = ttk.Frame(self.lbl_settings_frame)
+        language_frame.pack(fill="x", padx=10, pady=10)
+
+        self.lbl_language = ttk.Label(language_frame, text=I18N.t("settings.language"))
+        self.lbl_language.pack(side="left")
+        self.language_var = tk.StringVar(value=SETTINGS.get().language)
+        self.language_combo = ttk.Combobox(
+            language_frame,
+            state="readonly",
+            values=("English", "中文"),
+            width=10,
+        )
+        # Map display names to codes
+        self._lang_map = {"English": "en", "中文": "zh_CN"}
+        self._code_map = {"en": "English", "zh_CN": "中文"}
+        
+        current_lang = SETTINGS.get().language
+        self.language_combo.set(self._code_map.get(current_lang, "English"))
+        
+        self.language_combo.pack(side="left", padx=(6, 0))
+        self.language_combo.bind("<<ComboboxSelected>>", self._on_language_changed)
+        
+        self.lbl_restart_note = ttk.Label(language_frame, text=I18N.t("settings.restart_note"), font=("TkDefaultFont", 9, "italic"))
+        self.lbl_restart_note.pack(side="left", padx=(10, 0))
 
         self._build_plugin_settings()
 
         status_bar = ttk.Frame(self)
         status_bar.pack(fill="x", side="bottom", pady=(10, 0))
-        self.status_label = ttk.Label(status_bar, text="Status: Ready")
+        self.status_label = ttk.Label(status_bar, text=I18N.t("status.ready"))
         self.status_label.pack(anchor="w", padx=4, pady=(0, 4))
 
     def _refresh_provider_options(self) -> None:
@@ -421,7 +463,7 @@ class MangaDownloader(tk.Tk):
             self.search_provider_var.set("")
             self.search_results_listbox.delete(0, tk.END)
             self.chapters_listbox.delete(0, tk.END)
-            self._update_text_widget(self.series_info_text, "Enable a parser plugin to search.")
+            self._update_text_widget(self.series_info_text, I18N.t("status.enable_plugin_search"))
             return
 
         self.provider_combo.configure(values=tuple(available), state="readonly")
@@ -436,22 +478,23 @@ class MangaDownloader(tk.Tk):
         if not plugin_records:
             return
 
-        container = ttk.LabelFrame(self.settings_tab, text="Plugins")
-        container.pack(fill="both", expand=True, padx=10, pady=(0, 12))
+        self.lbl_plugins_frame = ttk.LabelFrame(self.settings_tab, text=I18N.t("settings.plugins"))
+        self.lbl_plugins_frame.pack(fill="both", expand=True, padx=10, pady=(0, 12))
 
-        ttk.Label(
-            container,
-            text="Enable or disable plugins for this session. Changes apply immediately.",
+        self.lbl_plugins_desc = ttk.Label(
+            self.lbl_plugins_frame,
+            text=I18N.t("settings.plugins_desc"),
             wraplength=420,
             justify="left",
-        ).pack(anchor="w", padx=10, pady=(8, 6))
+        )
+        self.lbl_plugins_desc.pack(anchor="w", padx=10, pady=(8, 6))
 
         for plugin_type in PluginType:
             records = self.plugin_manager.get_records(plugin_type)
             if not records:
                 continue
 
-            section = ttk.LabelFrame(container, text=f"{plugin_type.value.title()} Plugins")
+            section = ttk.LabelFrame(self.lbl_plugins_frame, text=f"{plugin_type.value.title()} Plugins")
             section.pack(fill="x", expand=False, padx=10, pady=(0, 10))
 
             for record in records:
@@ -475,7 +518,7 @@ class MangaDownloader(tk.Tk):
         enabled = bool(var.get())
         self.plugin_manager.set_enabled(plugin_type, plugin_name, enabled)
         status = "enabled" if enabled else "disabled"
-        self._set_status(f"Status: Plugin {plugin_name} {status}.")
+        self.status_label.config(text=I18N.t("status.plugin_toggled", name=plugin_name, status=status))
         if plugin_type is PluginType.PARSER:
             self._refresh_provider_options()
 
@@ -500,28 +543,28 @@ class MangaDownloader(tk.Tk):
         self.chapters_listbox.delete(0, tk.END)
         if hasattr(self, "series_url_var"):
             self.series_url_var.set("")
-        self._update_text_widget(self.series_info_text, "Select a series to load.")
-        self.status_label.config(text=f"Status: Switched to {provider_key}.")
+        self._update_text_widget(self.series_info_text, I18N.t("status.select_series"))
+        self.status_label.config(text=I18N.t("status.switched_provider", provider=provider_key))
 
     def start_search_thread(self):
         query = self.search_entry.get().strip()
         if not query:
-            self.status_label.config(text="Status: Enter a search query.")
+            self.status_label.config(text=I18N.t("status.enter_query"))
             return
 
         if not self._available_providers:
-            self.status_label.config(text="Status: Enable a parser plugin before searching.")
+            self.status_label.config(text=I18N.t("status.enable_plugin_search"))
             return
 
         provider_key = self._normalize_provider(self.search_provider_var.get())
         self.search_provider_var.set(provider_key)
 
         if provider_key not in self._available_providers:
-            self.status_label.config(text="Status: Selected provider is disabled.")
+            self.status_label.config(text=I18N.t("status.provider_disabled"))
             return
 
         self.search_button.config(state="disabled")
-        self.status_label.config(text=f'Status: Searching {provider_key} for "{query}"...')
+        self.status_label.config(text=I18N.t("status.searching", provider=provider_key, query=query))
         thread = threading.Thread(target=self._perform_search, args=(query, provider_key), daemon=True)
         thread.start()
 
@@ -535,16 +578,16 @@ class MangaDownloader(tk.Tk):
         try:
             results = service.search_manga(query)
         except requests.RequestException as error:
-            message = f"Status: {provider_key} search failed - Network error: {error}"
+            message = I18N.t("status.search_failed_network", provider=provider_key, error=error)
             logger.warning("Network error during search for %s: %s", query, error)
             self.after(0, lambda msg=message: self._on_search_failure(msg))
         except (json.JSONDecodeError, KeyError, ValueError, AttributeError):
             logger.exception("Data parsing error during search for %s with %s", query, provider_key)
-            message = f"Status: {provider_key} search error - Invalid response format"
+            message = I18N.t("status.search_error_format", provider=provider_key)
             self.after(0, lambda msg=message: self._on_search_failure(msg))
         except Exception as error:  # noqa: BLE001 - catch remaining unexpected failures
             logger.exception("Unexpected error in search for %s with %s", query, provider_key)
-            message = f"Status: {provider_key} search error - {error}"
+            message = I18N.t("status.search_error_generic", provider=provider_key, error=error)
             self.after(0, lambda msg=message: self._on_search_failure(msg))
         else:
             self.after(0, lambda: self._on_search_success(results, query, provider_key))
@@ -566,10 +609,10 @@ class MangaDownloader(tk.Tk):
 
         if results:
             self.status_label.config(
-                text=f'Status: Found {len(results)} {provider_key} result(s) for "{query}".'
+                text=I18N.t("status.found_results", count=len(results), provider=provider_key, query=query)
             )
         else:
-            self.status_label.config(text=f'Status: No {provider_key} results for "{query}".')
+            self.status_label.config(text=I18N.t("status.no_results", provider=provider_key, query=query))
 
         self.search_button.config(state="normal")
 
@@ -617,7 +660,7 @@ class MangaDownloader(tk.Tk):
         if not series_url:
             series_url = self._get_selected_search_url()
             if not series_url:
-                self.status_label.config(text="Status: Select a series or paste its URL.")
+                self.status_label.config(text=I18N.t("status.select_series"))
                 return
             self.series_url_var.set(series_url)
 
@@ -627,12 +670,12 @@ class MangaDownloader(tk.Tk):
             self.search_provider_var.set(provider_key)
 
         if provider_key not in self._available_providers:
-            self.status_label.config(text="Status: Enable the corresponding parser plugin to load this series.")
+            self.status_label.config(text=I18N.t("status.enable_plugin_load"))
             self.load_series_button.config(state="normal")
             return
 
         self.load_series_button.config(state="disabled")
-        self.status_label.config(text=f"Status: Fetching {provider_key} series info...")
+        self.status_label.config(text=I18N.t("status.fetching_series", provider=provider_key))
         thread = threading.Thread(
             target=self._perform_series_fetch,
             args=(series_url, provider_key),
@@ -650,16 +693,16 @@ class MangaDownloader(tk.Tk):
         try:
             data = service.get_series_info(series_url)
         except requests.RequestException as error:
-            message = f"Status: {provider_key} series fetch failed - Network error: {error}"
+            message = I18N.t("status.series_fetch_failed", provider=provider_key, error=error)
             logger.warning("Network error fetching series %s: %s", series_url, error)
             self.after(0, lambda msg=message: self._on_series_failure(msg))
         except (json.JSONDecodeError, KeyError, ValueError, AttributeError):
             logger.exception("Data parsing error for series %s with %s", series_url, provider_key)
-            message = f"Status: {provider_key} series parsing error - Invalid response format"
+            message = I18N.t("status.series_parse_error", provider=provider_key)
             self.after(0, lambda msg=message: self._on_series_failure(msg))
         except Exception as error:  # noqa: BLE001 - catch remaining unexpected failures
             logger.exception("Unexpected error processing series %s with %s", series_url, provider_key)
-            message = f"Status: {provider_key} error - {error}"
+            message = I18N.t("status.series_error_generic", provider=provider_key, error=error)
             self.after(0, lambda msg=message: self._on_series_failure(msg))
         else:
             self.after(0, lambda: self._on_series_success(data, provider_key))
@@ -701,7 +744,7 @@ class MangaDownloader(tk.Tk):
                 self.url_var.set(first_url)
 
         self.status_label.config(
-            text=f"Status: Loaded {len(self.series_chapters)} {provider_key} chapter(s)."
+            text=I18N.t("status.loaded_chapters", count=len(self.series_chapters), provider=provider_key)
         )
         self.load_series_button.config(state="normal")
 
@@ -731,10 +774,10 @@ class MangaDownloader(tk.Tk):
 
         if len(selection) == 1:
             chapter_title = chapter.get("title") or chapter.get("label") or f"Chapter {first_index + 1}"
-            self.status_label.config(text=f"Status: Selected {chapter_title}")
+            self.status_label.config(text=I18N.t("status.selected_chapter", title=chapter_title))
         else:
             self.status_label.config(
-                text=f"Status: Selected {len(selection)} chapter(s) ({first_index + 1}–{last_index + 1})"
+                text=I18N.t("status.selected_chapters_count", count=len(selection), start=first_index + 1, end=last_index + 1)
             )
 
     def on_chapter_double_click(self, event):
@@ -746,7 +789,7 @@ class MangaDownloader(tk.Tk):
         self.chapters_listbox.selection_set(0, tk.END)
         selection = list(range(len(self.series_chapters)))
         self._update_range_from_indices(selection)
-        self._set_status(f"Status: Selected all {len(selection)} chapter(s).")
+        self.status_label.config(text=I18N.t("status.selected_all", count=len(selection)))
         return "break"
 
     def _update_range_from_indices(self, indices):
@@ -760,7 +803,7 @@ class MangaDownloader(tk.Tk):
     def download_selected_chapter(self):
         selection = self.chapters_listbox.curselection()
         if not selection:
-            self._set_status("Status: Select one or more chapters to download.")
+            self.status_label.config(text=I18N.t("status.select_to_download"))
             return
         indices = sorted({idx for idx in selection if 0 <= idx < len(self.series_chapters)})
         chapter_items = []
@@ -773,7 +816,7 @@ class MangaDownloader(tk.Tk):
             chapter_items.append((chapter_url, label))
 
         if not chapter_items:
-            self._set_status("Status: Selected chapters are missing download URLs.")
+            self.status_label.config(text=I18N.t("status.missing_urls"))
             return
 
         self.url_var.set(chapter_items[0][0])
@@ -797,7 +840,7 @@ class MangaDownloader(tk.Tk):
             chapter_items.append((chapter_url, label))
 
         if not chapter_items:
-            self._set_status("Status: No downloadable chapters in the requested range.")
+            self.status_label.config(text=I18N.t("status.no_chapters_in_range"))
             return
 
         self.url_var.set(chapter_items[0][0])
@@ -886,10 +929,10 @@ class MangaDownloader(tk.Tk):
             queued += 1
 
         if queued:
-            label = "chapter" if queued == 1 else "chapters"
-            self._set_status(f"Status: Queued {queued} {label} for download.")
+            # The comments in the instruction are for context, not to be included in the code.
+            self.status_label.config(text=I18N.t("status.queued_batch", count=queued))
         else:
-            self._set_status("Status: No chapters were queued for download.")
+            self.status_label.config(text=I18N.t("status.missing_urls"))
 
     def _submit_download_task(self, url: str, initial_label: str | None) -> None:
         queue_label = initial_label or self._derive_queue_label(url)
@@ -1127,13 +1170,24 @@ class MangaDownloader(tk.Tk):
         paused = self._downloads_paused or self.queue_manager.is_paused()
 
         def _update() -> None:
-            queue_text = f"Queue • Active: {stats.active} | Pending: {stats.pending}"
-            if stats.failed:
-                queue_text += f" | Failed: {stats.failed}"
-            if stats.cancelled:
-                queue_text += f" | Cancelled: {stats.cancelled}"
+            # "Queue: {active} active, {pending} pending"
             if paused:
-                queue_text += " • Paused"
+                 # We don't have a "paused" state in the simple string, but we can append.
+                 # Let's use the "queue_active" key and maybe add " (Paused)" if needed.
+                 # For now, let's just show active/pending.
+                 base = I18N.t("status.queue_active", active=stats.active, pending=stats.pending)
+                 queue_text = f"{base} [Paused]" if paused else base
+            else:
+                 queue_text = I18N.t("status.queue_active", active=stats.active, pending=stats.pending)
+
+            if stats.failed or stats.cancelled:
+                 # Append extra info (not fully i18n'd yet but better than nothing)
+                 extras = []
+                 if stats.failed: extras.append(f"Failed: {stats.failed}")
+                 if stats.cancelled: extras.append(f"Cancelled: {stats.cancelled}")
+                 if extras:
+                     queue_text += f" | {' | '.join(extras)}"
+
             self.queue_status_var.set(queue_text)
 
         self.after(0, _update)
@@ -1141,7 +1195,6 @@ class MangaDownloader(tk.Tk):
     def _update_queue_progress(self) -> None:
         stats = self.queue_manager.get_stats()
         total = stats.total
-        completed = min(stats.completed + stats.cancelled, total)
 
         def update() -> None:
             if total > 0:
@@ -1188,6 +1241,74 @@ class MangaDownloader(tk.Tk):
     def _on_download_dir_var_write(self, *_: object) -> None:
         value = self.download_dir_var.get()
         self.download_dir_path = value.strip() if isinstance(value, str) else ""
+        SETTINGS.update(download_dir=self.download_dir_path)
+
+    def _on_language_changed(self, _event=None) -> None:
+        display_name = self.language_combo.get()
+        lang_code = self._lang_map.get(display_name, "en")
+        
+        if lang_code != SETTINGS.get().language:
+            SETTINGS.update(language=lang_code)
+            I18N.set_locale(lang_code)
+            self._update_ui_text()
+
+    def _update_ui_text(self) -> None:
+        """Refresh UI text elements after language change."""
+        self.title(I18N.t("app.title"))
+        
+        # Tabs
+        self.notebook.tab(self.search_tab, text=I18N.t("tabs.browser"))
+        self.notebook.tab(self.queue_tab, text=I18N.t("tabs.downloads"))
+        self.notebook.tab(self.settings_tab, text=I18N.t("tabs.settings"))
+        
+        # Browser Tab
+        self.lbl_search_frame.configure(text=I18N.t("browser.search_frame"))
+        self.lbl_source.configure(text=I18N.t("browser.source"))
+        self.search_button.configure(text=I18N.t("browser.search_btn"))
+        self.lbl_series_frame.configure(text=I18N.t("browser.series_details"))
+        self.lbl_series_url.configure(text=I18N.t("browser.series_url"))
+        self.load_series_button.configure(text=I18N.t("browser.load_series"))
+        if self.series_title_var.get() == "Series title will appear here" or self.series_title_var.get() == I18N.t("browser.default_title"):
+             self.series_title_var.set(I18N.t("browser.default_title"))
+        self.lbl_summary.configure(text=I18N.t("browser.summary"))
+        self.lbl_chapters.configure(text=I18N.t("browser.chapters"))
+        self.lbl_range.configure(text=I18N.t("browser.range"))
+        self.lbl_to.configure(text=I18N.t("browser.to"))
+        self.btn_highlight.configure(text=I18N.t("browser.highlight_range"))
+        self.btn_queue_selected.configure(text=I18N.t("browser.queue_selected"))
+        self.btn_queue_range.configure(text=I18N.t("browser.queue_range"))
+        self.btn_queue_all.configure(text=I18N.t("browser.queue_all"))
+        self.lbl_manual_frame.configure(text=I18N.t("browser.quick_queue"))
+        self.lbl_chapter_url.configure(text=I18N.t("browser.chapter_url"))
+        self.download_button.configure(text=I18N.t("browser.queue_download"))
+        
+        # Downloads Tab
+        self.lbl_queue_frame.configure(text=I18N.t("downloads.queue_frame"))
+        self.lbl_queue_overview.configure(text=I18N.t("downloads.queue_overview"))
+        self.lbl_overall_queue.configure(text=I18N.t("downloads.overall_queue"))
+        self.btn_clear_finished.configure(text=I18N.t("downloads.clear_finished"))
+        self.cancel_pending_button.configure(text=I18N.t("downloads.cancel_pending"))
+        self.pause_button.configure(text=I18N.t("downloads.pause"))
+        
+        # Settings Tab
+        self.lbl_settings_frame.configure(text=I18N.t("settings.download_settings"))
+        self.lbl_save_to.configure(text=I18N.t("settings.save_to"))
+        self.btn_browse.configure(text=I18N.t("settings.browse"))
+        self.lbl_chapter_workers.configure(text=I18N.t("settings.chapter_workers"))
+        self.lbl_image_workers.configure(text=I18N.t("settings.image_workers"))
+        self.lbl_language.configure(text=I18N.t("settings.language"))
+        self.lbl_restart_note.configure(text=I18N.t("settings.restart_note"))
+        
+        if hasattr(self, "lbl_plugins_frame"):
+            self.lbl_plugins_frame.configure(text=I18N.t("settings.plugins"))
+            self.lbl_plugins_desc.configure(text=I18N.t("settings.plugins_desc"))
+            # Note: Plugin section headers are not easily accessible unless we store them too.
+            # Since they are just "Parser Plugins" etc, we can leave them or rebuild.
+            # Rebuilding is safer but might reset scroll or state.
+            # For now, this covers 95% of the UI.
+
+        self._refresh_provider_options()
+        self.status_label.config(text=I18N.t("status.ready"))
 
     def _resolve_download_base_dir(self) -> str | None:
         base = self.download_dir_path or get_default_download_root()

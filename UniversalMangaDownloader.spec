@@ -12,7 +12,9 @@ a = Analysis(
     binaries=[],
     datas=[
         ("plugins/*.py", "plugins"),
-        ("assets/*.png", "assets"),  # Include assets if needed by code, though guide mentioned .icns/.ico specifically for app icon
+        ("assets/*.png", "assets"),
+        ("locales/*.json", "locales"),
+        # Include assets if needed by code, though guide mentioned .icns/.ico specifically for app icon
     ],
     hiddenimports=[
         "sv_ttk",

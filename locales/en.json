@@ -1,0 +1,85 @@
+{
+    "app": {
+        "title": "Universal Manga Downloader"
+    },
+    "tabs": {
+        "browser": "Browser",
+        "downloads": "Downloads",
+        "settings": "Settings"
+    },
+    "browser": {
+        "search_frame": "Search Manga",
+        "source": "Source:",
+        "search_btn": "Search",
+        "series_details": "Series Details",
+        "series_url": "Series URL:",
+        "load_series": "Load Series",
+        "default_title": "Series title will appear here",
+        "summary": "Summary & Info:",
+        "chapters": "Chapters:",
+        "range": "Range:",
+        "to": "to",
+        "highlight_range": "Highlight Range",
+        "queue_selected": "Queue Selected",
+        "queue_range": "Queue Range",
+        "queue_all": "Queue All",
+        "quick_queue": "Quick Queue",
+        "chapter_url": "Chapter URL:",
+        "queue_download": "Queue Download"
+    },
+    "downloads": {
+        "queue_frame": "Download Queue",
+        "queue_overview": "Queue Overview",
+        "overall_queue": "Overall queue:",
+        "clear_finished": "Clear Finished",
+        "cancel_pending": "Cancel Pending",
+        "pause": "Pause Downloads",
+        "resume": "Resume Downloads"
+    },
+    "settings": {
+        "download_settings": "Download Settings",
+        "save_to": "Save to:",
+        "browse": "Browse…",
+        "chapter_workers": "Chapter workers:",
+        "image_workers": "Image workers:",
+        "plugins": "Plugins",
+        "plugins_desc": "Enable or disable plugins for this session. Changes apply immediately.",
+        "parser_plugins": "Parser Plugins",
+        "language": "Language:",
+        "restart_note": "Note: Some changes may require a restart."
+    },
+    "status": {
+        "ready": "Status: Ready",
+        "switched_provider": "Status: Switched to {provider}.",
+        "enter_query": "Status: Enter a search query.",
+        "enable_plugin_search": "Status: Enable a parser plugin before searching.",
+        "provider_disabled": "Status: Selected provider is disabled.",
+        "searching": "Status: Searching {provider} for \"{query}\"...",
+        "search_failed_network": "Status: {provider} search failed - Network error: {error}",
+        "search_error_format": "Status: {provider} search error - Invalid response format",
+        "search_error_generic": "Status: {provider} search error - {error}",
+        "found_results": "Status: Found {count} {provider} result(s) for \"{query}\".",
+        "no_results": "Status: No {provider} results for \"{query}\".",
+        "select_series": "Status: Select a series or paste its URL.",
+        "enable_plugin_load": "Status: Enable the corresponding parser plugin to load this series.",
+        "fetching_series": "Status: Fetching {provider} series info...",
+        "series_fetch_failed": "Status: {provider} series fetch failed - Network error: {error}",
+        "series_parse_error": "Status: {provider} series parsing error - Invalid response format",
+        "series_error_generic": "Status: {provider} error - {error}",
+        "loaded_chapters": "Status: Loaded {count} {provider} chapter(s).",
+        "selected_chapter": "Status: Selected {title}",
+        "selected_chapters_count": "Status: Selected {count} chapter(s) ({start}–{end})",
+        "selected_all": "Status: Selected all {count} chapter(s).",
+        "select_to_download": "Status: Select one or more chapters to download.",
+        "missing_urls": "Status: Selected chapters are missing download URLs.",
+        "no_chapters_in_range": "Status: No downloadable chapters in the requested range.",
+        "plugin_toggled": "Status: Plugin {name} {status}.",
+        "queue_idle": "Queue: idle",
+        "queue_active": "Queue: {active} active, {pending} pending",
+        "queued_batch": "Status: Queued {count} chapter(s) for download.",
+        "download_started": "Status: Started download for {title}"
+    },
+    "dialogs": {
+        "select_folder": "Select Download Folder"
+    }
+}
