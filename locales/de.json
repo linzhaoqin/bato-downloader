@@ -1,0 +1,85 @@
+{
+    "app": {
+        "title": "Universal Manga Downloader"
+    },
+    "tabs": {
+        "browser": "Browser",
+        "downloads": "Downloads",
+        "settings": "Einstellungen"
+    },
+    "browser": {
+        "search_frame": "Manga suchen",
+        "source": "Quelle:",
+        "search_btn": "Suchen",
+        "series_details": "Seriendetails",
+        "series_url": "Serien-URL:",
+        "load_series": "Serie laden",
+        "default_title": "Serientitel erscheint hier",
+        "summary": "Zusammenfassung & Info:",
+        "chapters": "Kapitel:",
+        "range": "Bereich:",
+        "to": "bis",
+        "highlight_range": "Bereich markieren",
+        "queue_selected": "Auswahl herunterladen",
+        "queue_range": "Bereich herunterladen",
+        "queue_all": "Alle herunterladen",
+        "quick_queue": "Schnell-Download",
+        "chapter_url": "Kapitel-URL:",
+        "queue_download": "In Warteschlange"
+    },
+    "downloads": {
+        "queue_frame": "Download-Warteschlange",
+        "queue_overview": "Warteschlangen-Übersicht",
+        "overall_queue": "Gesamtwarteschlange:",
+        "clear_finished": "Fertige löschen",
+        "cancel_pending": "Ausstehende abbrechen",
+        "pause": "Downloads pausieren",
+        "resume": "Downloads fortsetzen"
+    },
+    "settings": {
+        "download_settings": "Download-Einstellungen",
+        "save_to": "Speichern unter:",
+        "browse": "Durchsuchen…",
+        "chapter_workers": "Kapitel-Worker:",
+        "image_workers": "Bild-Worker:",
+        "plugins": "Plugins",
+        "plugins_desc": "Plugins für diese Sitzung aktivieren oder deaktivieren. Änderungen werden sofort wirksam.",
+        "parser_plugins": "Parser-Plugins",
+        "language": "Sprache:",
+        "restart_note": "Hinweis: Einige Änderungen erfordern möglicherweise einen Neustart."
+    },
+    "status": {
+        "ready": "Status: Bereit",
+        "switched_provider": "Status: Gewechselt zu {provider}.",
+        "enter_query": "Status: Bitte Suchbegriff eingeben.",
+        "enable_plugin_search": "Status: Bitte zuerst ein Parser-Plugin aktivieren.",
+        "provider_disabled": "Status: Ausgewählte Quelle ist deaktiviert.",
+        "searching": "Status: Suche in {provider} nach \"{query}\"...",
+        "search_failed_network": "Status: {provider} Suche fehlgeschlagen - Netzwerkfehler: {error}",
+        "search_error_format": "Status: {provider} Suchfehler - Ungültiges Antwortformat",
+        "search_error_generic": "Status: {provider} Suchfehler - {error}",
+        "found_results": "Status: {count} {provider} Ergebnis(se) für \"{query}\" gefunden.",
+        "no_results": "Status: Keine {provider} Ergebnisse für \"{query}\".",
+        "select_series": "Status: Bitte eine Serie auswählen oder URL einfügen.",
+        "enable_plugin_load": "Status: Bitte entsprechendes Parser-Plugin aktivieren, um diese Serie zu laden.",
+        "fetching_series": "Status: Rufe {provider} Serieninfos ab...",
+        "series_fetch_failed": "Status: {provider} Abruf fehlgeschlagen - Netzwerkfehler: {error}",
+        "series_parse_error": "Status: {provider} Parser-Fehler - Ungültiges Antwortformat",
+        "series_error_generic": "Status: {provider} Fehler - {error}",
+        "loaded_chapters": "Status: {count} {provider} Kapitel geladen.",
+        "selected_chapter": "Status: Ausgewählt: {title}",
+        "selected_chapters_count": "Status: {count} Kapitel ausgewählt ({start}–{end})",
+        "selected_all": "Status: Alle {count} Kapitel ausgewählt.",
+        "select_to_download": "Status: Bitte ein oder mehrere Kapitel zum Herunterladen auswählen.",
+        "missing_urls": "Status: Ausgewählte Kapitel haben keine Download-URLs.",
+        "no_chapters_in_range": "Status: Keine herunterladbaren Kapitel im gewählten Bereich.",
+        "plugin_toggled": "Status: Plugin {name} {status}.",
+        "queue_idle": "Warteschlange: Leer",
+        "queue_active": "Warteschlange: {active} aktiv, {pending} ausstehend",
+        "queued_batch": "Status: {count} Kapitel in die Warteschlange eingereiht.",
+        "download_started": "Status: Download gestartet für {title}"
+    },
+    "dialogs": {
+        "select_folder": "Download-Ordner auswählen"
+    }
+}

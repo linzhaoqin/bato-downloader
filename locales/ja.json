@@ -1,0 +1,85 @@
+{
+    "app": {
+        "title": "Universal Manga Downloader"
+    },
+    "tabs": {
+        "browser": "ブラウザ",
+        "downloads": "ダウンロード",
+        "settings": "設定"
+    },
+    "browser": {
+        "search_frame": "マンガ検索",
+        "source": "ソース:",
+        "search_btn": "検索",
+        "series_details": "シリーズ詳細",
+        "series_url": "シリーズURL:",
+        "load_series": "シリーズ読込",
+        "default_title": "ここにタイトルが表示されます",
+        "summary": "概要 & 情報:",
+        "chapters": "チャプター:",
+        "range": "範囲:",
+        "to": "〜",
+        "highlight_range": "範囲選択",
+        "queue_selected": "選択中をDL",
+        "queue_range": "範囲をDL",
+        "queue_all": "すべてDL",
+        "quick_queue": "クイックDL",
+        "chapter_url": "チャプターURL:",
+        "queue_download": "キューに追加"
+    },
+    "downloads": {
+        "queue_frame": "ダウンロードキュー",
+        "queue_overview": "キュー概要",
+        "overall_queue": "全体キュー:",
+        "clear_finished": "完了を削除",
+        "cancel_pending": "待機中をキャンセル",
+        "pause": "一時停止",
+        "resume": "再開"
+    },
+    "settings": {
+        "download_settings": "ダウンロード設定",
+        "save_to": "保存先:",
+        "browse": "参照…",
+        "chapter_workers": "チャプター並列数:",
+        "image_workers": "画像並列数:",
+        "plugins": "プラグイン",
+        "plugins_desc": "このセッションのプラグインを有効/無効にします。変更は即座に反映されます。",
+        "parser_plugins": "パーサープラグイン",
+        "language": "言語:",
+        "restart_note": "注: 一部の変更は再起動後に有効になります。"
+    },
+    "status": {
+        "ready": "ステータス: 準備完了",
+        "switched_provider": "ステータス: {provider} に切り替えました。",
+        "enter_query": "ステータス: 検索キーワードを入力してください。",
+        "enable_plugin_search": "ステータス: 検索する前にパーサープラグインを有効にしてください。",
+        "provider_disabled": "ステータス: 選択されたソースは無効です。",
+        "searching": "ステータス: {provider} で \"{query}\" を検索中...",
+        "search_failed_network": "ステータス: {provider} 検索失敗 - ネットワークエラー: {error}",
+        "search_error_format": "ステータス: {provider} 検索エラー - 無効な応答形式",
+        "search_error_generic": "ステータス: {provider} 検索エラー - {error}",
+        "found_results": "ステータス: {provider} で {count} 件の結果が見つかりました (\"{query}\")。",
+        "no_results": "ステータス: {provider} で \"{query}\" の結果は見つかりませんでした。",
+        "select_series": "ステータス: シリーズを選択するかURLを貼り付けてください。",
+        "enable_plugin_load": "ステータス: このシリーズを読み込むには対応するプラグインを有効にしてください。",
+        "fetching_series": "ステータス: {provider} シリーズ情報を取得中...",
+        "series_fetch_failed": "ステータス: {provider} 取得失敗 - ネットワークエラー: {error}",
+        "series_parse_error": "ステータス: {provider} 解析エラー - 無効な応答形式",
+        "series_error_generic": "ステータス: {provider} エラー - {error}",
+        "loaded_chapters": "ステータス: {count} 件の {provider} チャプターを読み込みました。",
+        "selected_chapter": "ステータス: {title} を選択中",
+        "selected_chapters_count": "ステータス: {count} 件のチャプターを選択中 ({start}–{end})",
+        "selected_all": "ステータス: 全 {count} チャプターを選択中。",
+        "select_to_download": "ステータス: ダウンロードするチャプターを選択してください。",
+        "missing_urls": "ステータス: 選択されたチャプターにダウンロードURLがありません。",
+        "no_chapters_in_range": "ステータス: 指定された範囲にダウンロード可能なチャプターがありません。",
+        "plugin_toggled": "ステータス: プラグイン {name} を{status}にしました。",
+        "queue_idle": "キュー: 待機中",
+        "queue_active": "キュー: {active} 実行中, {pending} 待機中",
+        "queued_batch": "ステータス: {count} 件のチャプターをキューに追加しました。",
+        "download_started": "ステータス: {title} のダウンロードを開始"
+    },
+    "dialogs": {
+        "select_folder": "ダウンロード先フォルダを選択"
+    }
+}

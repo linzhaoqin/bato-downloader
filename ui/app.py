@@ -384,12 +384,12 @@ class MangaDownloader(tk.Tk):
         self.language_combo = ttk.Combobox(
             language_frame,
             state="readonly",
-            values=("English", "中文"),
+            values=("English", "中文", "Deutsch", "日本語"),
             width=10,
         )
         # Map display names to codes
-        self._lang_map = {"English": "en", "中文": "zh_CN"}
-        self._code_map = {"en": "English", "zh_CN": "中文"}
+        self._lang_map = {"English": "en", "中文": "zh_CN", "Deutsch": "de", "日本語": "ja"}
+        self._code_map = {"en": "English", "zh_CN": "中文", "de": "Deutsch", "ja": "日本語"}
         
         current_lang = SETTINGS.get().language
         self.language_combo.set(self._code_map.get(current_lang, "English"))
@@ -1206,7 +1206,9 @@ class MangaDownloader(tk.Tk):
         self.lbl_series_frame.configure(text=I18N.t("browser.series_details"))
         self.lbl_series_url.configure(text=I18N.t("browser.series_url"))
         self.load_series_button.configure(text=I18N.t("browser.load_series"))
-        if self.series_title_var.get() == "Series title will appear here" or self.series_title_var.get() == I18N.t("browser.default_title"):
+        # Check if title is a default placeholder (in any language) or empty
+        # We can check if we have series data. If not, it should be default.
+        if not self.series_data:
              self.series_title_var.set(I18N.t("browser.default_title"))
         self.lbl_summary.configure(text=I18N.t("browser.summary"))
         self.lbl_chapters.configure(text=I18N.t("browser.chapters"))
@@ -1247,6 +1249,7 @@ class MangaDownloader(tk.Tk):
 
         self._refresh_provider_options()
         self.status_label.config(text=I18N.t("status.ready"))
+        self._update_queue_status()
 
     def _resolve_download_base_dir(self) -> str | None:
         base = self.download_dir_path or get_default_download_root()
